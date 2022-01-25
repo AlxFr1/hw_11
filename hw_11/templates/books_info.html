@@ -25,7 +25,7 @@
             <li>Raring: {{ books_info.rating }}</li>
             <li>Price: {{ books_info.price }}</li>
             <li>Pubdate: {{ books_info.pubdate }}</li>
-            <li>Publisher: <a href="{{ book.publisher.get_absolute_url }}">{{ books_info.publisher }}</a></li>
+            <li>Publisher: <a href="{{ books_info.publisher.get_absolute_url }}">{{ books_info.publisher }}</a></li>
             <li>Pages: {{ books_info.pages }}</li>
 
             {% endif %}

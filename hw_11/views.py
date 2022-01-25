@@ -1,8 +1,12 @@
+from django.contrib import messages
 from django.db.models import Avg, Count
 from django.db.models.functions import Round
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+
+from hw_11.tasks import celery_send_mail
 
 from hw_11.models import Author, Book, Publisher, Store
+from hw_11.forms import CeleryForm
 
 
 def home(request):
@@ -49,3 +53,27 @@ def store(request):
 def store_info(request, pk):
     stores_info = get_object_or_404(Store.objects.all().prefetch_related('books'), pk=pk)
     return render(request, "store_info.html", {'stores_info': stores_info})
+
+
+def celery(request):
+    if request.method == "POST":
+        form = CeleryForm(request.POST)
+        if form.is_valid():
+            question = form.cleaned_data['question']
+            email = form.cleaned_data['email']
+            reminder_date = form.cleaned_data['reminder_date']
+            celery_send_mail.apply_async((question, email), eta=reminder_date)
+            messages.success(request, 'Remind is created')
+            return redirect('/')
+    else:
+        form = CeleryForm()
+    return render(request, 'celery.html', {'form': form})
+
+
+
+
+
+
+
+
+

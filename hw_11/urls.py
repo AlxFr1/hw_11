@@ -14,6 +14,7 @@ urlpatterns = [
     path('publishers/<int:pk>', publisher_info, name='publisher-detail'),  # noqa: F405
     path('store/', store, name='stores'),  # noqa: F405
     path('store/<int:pk>', store_info, name='store-detail'),  # noqa: F405
+    path('celery/', celery, name='celery'),
 ]
 if settings.DEBUG:
     import debug_toolbar
