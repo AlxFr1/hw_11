@@ -2,27 +2,18 @@ import datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 
 class CeleryForm(forms.Form):
     email = forms.EmailField()
     question = forms.CharField(max_length=30)
-    reminder_date = forms.DateField(required=True, input_formats=['%Y-%m-%d %H-%M'])
+    reminder_date = forms.DateTimeField(required=True, label='DateTime')
 
     def clean_reminder_date(self):
-        data = self.cleaned_data['reminder_date']
-        if data < datetime.date.today():
+        data = self.cleaned_data['reminder_date'] - datetime.timedelta(hours=2) + datetime.timedelta(milliseconds=1)
+        if data < timezone.now():
             raise ValidationError('Invalid date - renewal in past')
-        if data > datetime.date.today() + datetime.timedelta(weeks=4):
-            raise ValidationError('Invalid date - renewal more than 4 weeks ahead')
+        if data > timezone.now() + datetime.timedelta(days=2):
+            raise ValidationError('Invalid date - renewal more than 2 days ahead')
         return data
-
-
-
-
-#input_formats=['%Y-%m-%d %H-%M']
-# class CeleryForm(forms.Form):
-#     email = forms.EmailField()
-#     question = forms.CharField(max_length=30)
-#     date = forms.DateTimeField(label='when to remind ?', required=True, input_formats=['%Y-%m-%d %H-%M'])
-

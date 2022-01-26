@@ -1,9 +1,11 @@
+import datetime
+
 from django.contrib import messages
 from django.db.models import Avg, Count
 from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404, render, redirect
 
-from hw_11.tasks import celery_send_mail
+from tasks import celery_send_mail
 
 from hw_11.models import Author, Book, Publisher, Store
 from hw_11.forms import CeleryForm
@@ -64,11 +66,13 @@ def celery(request):
             reminder_date = form.cleaned_data['reminder_date']
             celery_send_mail.apply_async((question, email), eta=reminder_date)
             messages.success(request, 'Remind is created')
+            print(datetime.datetime.utcnow(), '|||||||', reminder_date)
             return redirect('/')
     else:
-        form = CeleryForm()
+        form = CeleryForm(initial={
+            'reminder_date': f'{(datetime.datetime.now() + datetime.timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")}'
+        })
     return render(request, 'celery.html', {'form': form})
-
 
 
 
