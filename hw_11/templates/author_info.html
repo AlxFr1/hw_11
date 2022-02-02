@@ -5,21 +5,25 @@
     <title>Title</title>
 </head>
 <body>
-{% if author_info %}
-     <h1>Author Info:</h1><br>
+ <h1>Author Info:</h1><br>
         <ul>
-            <li>Author name: {{ author_info.name }}</li>
-            <li>Age: {{ author_info.age }} y.o.</li>
-            <li>Avg Rating: {{ author_info.average_rating }}</li>
+            <li>Author name: {{ author.name }}</li>
+            <li>Age: {{ author.age }} y.o.</li>
+            <li>Avg Rating: {{ author.average_rating }}</li>
+            <li class="container" style="display: flex; flex-direction: row; align-items: center">
+                <a style="padding: 0.2em; background: rgb(38,188,245); color: black; border-radius: 10%" href="{% url 'author-update' author.pk %}">Update Author</a>
+                <a style="padding: 0.2em; background: rgb(238,66,66); color: black; border-radius: 10%" href="{% url 'author-delete' author.pk %}">Delete Author</a>
+          </li>
             <li>
                 <h4>
                     Books:
                     <ul>
-                        {% for book in author_info.book_set.all %}
+                        {% for book in author.book_set.all %}
                             <li><a href="{{ book.get_absolute_url }}">{{ book.name }}</a>({{ book.rating }})</li>
                         {% endfor %}
                     </ul>
-                    {% endif %}
-
+                </h4>
+            </li>
+        </ul>
 </body>
 </html>

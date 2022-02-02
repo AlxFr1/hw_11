@@ -1,9 +1,13 @@
 import datetime
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Avg, Count
 from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy
+from django.views import generic
 
 from tasks import celery_send_mail
 
@@ -15,15 +19,40 @@ def home(request):
     return render(request, 'home.html')
 
 
-def authors(request):
-    author_list = Author.objects.all().prefetch_related('book_set').annotate(books_count=Count('book'))
-    return render(request, 'authors_list.html', {'author_list': author_list})
+class AuthorListView(generic.ListView):
+    template_name = 'author_list.html'
+    queryset = Author.objects.all().prefetch_related('book_set').annotate(books_count=Count('book'))
+    paginate_by = 25
 
 
-def authors_info(request, pk):
-    author_info = get_object_or_404(Author.objects.prefetch_related
-                                    ('book_set').annotate(average_rating=Round(Avg('book__rating'))), pk=pk)
-    return render(request, 'author_info.html', {'author_info': author_info})
+class AuthorDetailView(generic.DetailView):
+    queryset = Author.objects.prefetch_related('book_set').annotate(average_rating=Round(Avg('book__rating')))
+
+
+class AuthorCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView):
+    model = Author
+    template_name = 'author_form.html'
+    fields = '__all__'
+    success_message = 'Author successfully created'
+    success_url = reverse_lazy('author-list')
+    login_url = '/admin/'
+
+
+class AuthorUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
+    model = Author
+    template_name = 'author_form.html'
+    fields = '__all__'
+    success_message = 'Author successfully updated'
+    success_url = reverse_lazy('author-list')
+    login_url = '/admin/'
+
+
+class AuthorDeleteView(LoginRequiredMixin, SuccessMessageMixin, generic.DeleteView):
+    model = Author
+    template_name = 'author_confirm_delete.html'
+    success_message = 'Author successfully deleted'
+    success_url = reverse_lazy('author-list')
+    login_url = '/admin/'
 
 
 def books(request):
