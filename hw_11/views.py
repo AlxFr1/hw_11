@@ -7,7 +7,9 @@ from django.db.models import Avg, Count
 from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import generic
+from django.views.decorators.cache import cache_page
 
 from tasks import celery_send_mail
 
@@ -25,6 +27,7 @@ class AuthorListView(generic.ListView):
     paginate_by = 25
 
 
+@method_decorator(cache_page(30), name='dispatch')
 class AuthorDetailView(generic.DetailView):
     queryset = Author.objects.prefetch_related('book_set').annotate(average_rating=Round(Avg('book__rating')))
 

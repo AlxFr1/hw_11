@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load cache %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +11,7 @@
         <a style="padding: 0.2em; background: rgb(103,238,66); color: black; border-radius: 10%" href="{% url 'author-create' %}">Create Author</a>
 
     </div>
-
+{% cache 60 author_list %}
     {% if author_list %}
     <ul>
       {% for author in author_list %}
@@ -29,5 +30,6 @@
     {% else %}
       <p>There are no Authors.</p>
     {% endif %}
+ {% endcache %}
 </body>
 </html>
